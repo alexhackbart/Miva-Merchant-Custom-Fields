@@ -17,6 +17,7 @@
 | Prefix         : MER-UTL-CST-
 | Next Error Code: 137  
 |
+| LAVABANGERS
 </MvCOMMENT>
 
 <MvFUNCTION NAME = "Module_Description" PARAMETERS = "module var" STANDARDOUTPUTLEVEL = "">
