@@ -20,14 +20,70 @@
 | LAVABANGERS
 </MvCOMMENT>
 
+
+<MvCOMMENT>Store Functions</MvCOMMENT>
+
 <MvFUNCTION NAME = "Module_Description" PARAMETERS = "module var" STANDARDOUTPUTLEVEL = "">
-	<MvASSIGN NAME = "l.module:code"		VALUE = "mmlsk-customfields">
+	<MvASSIGN NAME = "l.module:code"		VALUE = "JAB_customfields">
 	<MvASSIGN NAME = "l.module:name"		VALUE = "Custom Fields">
-	<MvASSIGN NAME = "l.module:provider"	VALUE = "Brennan, Alex and Joe">
+	<MvASSIGN NAME = "l.module:provider"	VALUE = "Brennan, Alex and Joe - Miva Merchant">
 	<MvASSIGN NAME = "l.module:version"		VALUE = "5.6000">
 	<MvASSIGN NAME = "l.module:api_ver"		VALUE = "5.00">
-	<MvASSIGN NAME = "l.module:features"	VALUE = "util, vis_util, vis_category, vis_categorybe, fields_cat, vis_product, vis_productbe, fields_prod, vis_cust, vis_custbe, fields_cust, data_store, provision_store">
+	<MvASSIGN NAME = "l.module:features"	VALUE = "component, util, vis_util, vis_category, vis_categorybe, fields_cat, vis_product, vis_productbe, fields_prod, vis_cust, vis_custbe, fields_cust, data_store, provision_store">
 </MvFUNCTION>
+
+<MvCOMMENT>Componet Functions</MvCOMMENT>
+
+<MvFUNCTION NAME = "ComponentModule_Tabs" PARAMETERS = "module var, item, settings var" STANDARDOUTPUTLEVEL = "">
+	<MvFUNCTIONRETURN VALUE = "">
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "ComponentModule_Validate" PARAMETERS = "module var, item, field_prefix, fields var" STANDARDOUTPUTLEVEL = "">
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "ComponentModule_Update" PARAMETERS = "module var, item, field_prefix, fields var, settings var" STANDARDOUTPUTLEVEL = "">
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "ComponentModule_Content" PARAMETERS = "module var, item, tab, load_fields, field_prefix, fields var, settings var" STANDARDOUTPUTLEVEL = "">
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "ComponentModule_Defaults" PARAMETERS = "module var, settings var" STANDARDOUTPUTLEVEL = "">
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "ComponentModule_Page_Assign" PARAMETERS = "module var, page var, item, settings var" STANDARDOUTPUTLEVEL = "">
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "ComponentModule_Page_Unassign" PARAMETERS = "module var, page var, item, settings var" STANDARDOUTPUTLEVEL = "">
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "ComponentModule_Initialize" PARAMETERS = "module var, item, all_settings var, settings var" STANDARDOUTPUTLEVEL = "">
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "ComponentModule_Render_Start" PARAMETERS = "module var, item, all_settings var, settings var, param" STANDARDOUTPUTLEVEL = "">
+	
+	<MvASSIGN NAME = "l.type_string" VALUE = "{ gettoken(l.param,'|',1) }">
+	
+	<MvASSIGN NAME = "l.type" VALUE = "{ gettoken(l.type_string,'=',1) }">
+	<MvASSIGN NAME = "l.type_value" VALUE = "{ gettoken(l.type_string,'=',2) }">
+	
+		<MvIF EXPR = "{ l.type_value EQ 'product' }">
+
+			<MvASSIGN NAME = "l.all_settings:custom_fields:type_value"		VALUE = "{  l.type_value }">
+
+		</MvIF>
+
+	<MvFUNCTIONRETURN VALUE="1">
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "ComponentModule_Render_End" PARAMETERS = "module var, item, all_settings var, settings var, param" STANDARDOUTPUTLEVEL = "">
+</MvFUNCTION>
+
+
 
 <MvFUNCTION NAME = "Module_Install_Store" PARAMETERS = "module var" STANDARDOUTPUTLEVEL = "">
 	<MvIF EXPR = "{ NOT [ g.Module_Library_DB ].StoreKey_Insert( 'CFM_Fields', 1 ) }">
@@ -288,6 +344,8 @@
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
 
+<MvCOMMENT>Category Functions</MvCOMMENT>
+
 <MvFUNCTION NAME = "Module_Category_Tabs" PARAMETERS = "module var, category var" STANDARDOUTPUTLEVEL = "">
 	<MvIF EXPR = "{ CategoryFields_Count() }">
 		<MvFUNCTIONRETURN VALUE = "CPFG:Custom Fields">
@@ -399,6 +457,8 @@
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
 
+<MvCOMMENT>Category Batch Edit Functions</MvCOMMENT>
+
 <MvFUNCTION NAME = "Module_Category_BatchEdit_Validate" PARAMETERS = "module var" STANDARDOUTPUTLEVEL = "">
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
@@ -416,6 +476,9 @@
 
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
+
+<MvCOMMENT>Category Custom Fields Functions</MvCOMMENT>
+
 
 <MvFUNCTION NAME = "Module_Category_Fields" PARAMETERS = "module var, fields var" STANDARDOUTPUTLEVEL = "">
 	<MvFUNCTIONRETURN VALUE = "{ CategoryFieldList_Load_All( l.fields ) }">
@@ -479,6 +542,8 @@
 
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
+
+<MvCOMMENT>Product Functions</MvCOMMENT>
 
 <MvFUNCTION NAME = "Module_Product_Tabs" PARAMETERS = "module var, product var" STANDARDOUTPUTLEVEL = "">
 	<MvIF EXPR = "{ ProductFields_Count() }">
@@ -583,6 +648,7 @@
 </MvFUNCTION>
 
 <MvFUNCTION NAME = "Module_Product_Delete" PARAMETERS = "module var, product var" STANDARDOUTPUTLEVEL = "">
+
 	<MvIF EXPR = "{ NOT ProductFieldValue_Delete_All_Product( l.product:id ) }">
 		<MvFUNCTIONRETURN VALUE = 0>
 	</MvIF>
@@ -591,6 +657,9 @@
 
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
+
+
+<MvCOMMENT>Product Batch Edit</MvCOMMENT>
 
 <MvFUNCTION NAME = "Module_Product_BatchEdit_Validate" PARAMETERS = "module var" STANDARDOUTPUTLEVEL = "">
 	<MvFUNCTIONRETURN VALUE = 1>
@@ -609,6 +678,9 @@
 
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
+
+<MvCOMMENT>Product Custom Product Fields</MvCOMMENT>
+
 
 <MvFUNCTION NAME = "Module_Product_Fields" PARAMETERS = "module var, fields var" STANDARDOUTPUTLEVEL = "">
 	<MvFUNCTIONRETURN VALUE = "{ ProductFieldList_Load_All( l.fields ) }">
@@ -672,6 +744,9 @@
 
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
+
+
+<MvCOMMENT>Customer Tab Functions</MvCOMMENT>
 
 <MvFUNCTION NAME = "Module_Customer_Tabs" PARAMETERS = "module var, customer var" STANDARDOUTPUTLEVEL = "">
 	<MvIF EXPR = "{ CustomerFields_Count() }">
@@ -784,6 +859,9 @@
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
 
+
+<MvCOMMENT>Customer Batch Edit</MvCOMMENT>
+
 <MvFUNCTION NAME = "Module_Customer_BatchEdit_Validate" PARAMETERS = "module var" STANDARDOUTPUTLEVEL = "">
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
@@ -800,6 +878,9 @@
 	<MvEVAL EXPR = "{ [ g.Module_Admin ].Admin_Log_Action( 'MER-UTL-CST-00107', 'CustomFields Customer ID \'' $ l.customer:id $ '\' deleted' ) }">
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
+
+
+<MvCOMMENT>Customer Custom Fields</MvCOMMENT>
 
 <MvFUNCTION NAME = "Module_Customer_Fields" PARAMETERS = "module var, fields var" STANDARDOUTPUTLEVEL = "">
 	<MvFUNCTIONRETURN VALUE = "{ CustomerFieldList_Load_All( l.fields ) }">
@@ -863,6 +944,8 @@
 
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
+
+<MvCOMMENT>Utility Fucntions</MvCOMMENT>
 
 <MvFUNCTION NAME = "Module_Utility_Validate" PARAMETERS = "module var" STANDARDOUTPUTLEVEL = "">
 	<MvCOMMENT>
@@ -1545,6 +1628,9 @@ function CFM_CustomerField_Edit( field )
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
 
+
+<MvCOMMENT>Store Provision</MvCOMMENT>
+
 <MvFUNCTION NAME = "Module_Provision_Store" PARAMETERS = "module var, provide_xml var" STANDARDOUTPUTLEVEL = "">
 	<MvASSIGN NAME = "l.child_pos"		VALUE = 1>
 	<MvASSIGN NAME = "l.child_count"	VALUE = "{ miva_array_elements( l.provide_xml:children ) }">
@@ -1838,6 +1924,9 @@ function CFM_CustomerField_Edit( field )
 		<MvEVAL EXPR = "{ [ g.Module_Admin ].Admin_Log_Action( 'MER-UTL-CST-00136', 'CustomFields Category ID \'' $ l.category:id $ '\', Field ID \'' $ l.field:id $ '\' deleted' ) }">
 	</MvIF>
 </MvFUNCTION>
+
+
+<MvCOMMENT>NON API Custom Functions</MvCOMMENT>
 
 <MvFUNCTION NAME = "CategoryField_Read" PARAMETERS = "field var" STANDARDOUTPUTLEVEL = "">
 	<MvASSIGN NAME = "l.field:id"	VALUE = "{ CategoryFields.d.id }">
