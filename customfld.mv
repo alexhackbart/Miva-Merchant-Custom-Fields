@@ -65,14 +65,50 @@
 
 <MvFUNCTION NAME = "ComponentModule_Render_Start" PARAMETERS = "module var, item, all_settings var, settings var, param" STANDARDOUTPUTLEVEL = "">
 	
-	<MvASSIGN NAME = "l.type_string" VALUE = "{ gettoken(l.param,'|',1) }">
-	
-	<MvASSIGN NAME = "l.type" VALUE = "{ gettoken(l.type_string,'=',1) }">
-	<MvASSIGN NAME = "l.type_value" VALUE = "{ gettoken(l.type_string,'=',2) }">
-	
-		<MvIF EXPR = "{ l.type_value EQ 'product' }">
+	<MvCOMMENT>Parse Parameter and  split string into sections seperated by pipe symbol </MvCOMMENT>
+    
+    <MvASSIGN NAME = "l.custom_fields:params:sub1"     VALUE = "{ gettoken(l.param,'|',1) }">
+    <MvASSIGN NAME = "l.custom_fields:params:sub2"     VALUE = "{ gettoken(l.param,'|',2) }">
+    <MvASSIGN NAME = "l.custom_fields:params:sub3"     VALUE = "{ gettoken(l.param,'|',3) }">
+    <MvASSIGN NAME = "l.custom_fields:iparams:sub4"    VALUE = "{ gettoken(l.param,'|',4) }">
 
-			<MvASSIGN NAME = "l.all_settings:custom_fields:type_value"		VALUE = "{  l.type_value }">
+
+      <MvCOMMENT>Parse Name Value Pairs into their own variables </MvCOMMENT>
+
+      <MvIF EXPR="{ 'type' CIN l.custom_fields:params:sub1 }">
+
+     <MvASSIGN NAME = "l.custom_fields:type_name"             VALUE = "{ gettoken(l.custom_fields:type_pair,'=',1) }">
+     <MvASSIGN NAME = "l.custom_fields:type_value"              VALUE = "{ gettoken(l.custom_fields:type_pair,'=',2) }">
+
+     <MvASSIGN NAME = "l.custom_fields:identifier_name"       VALUE = "{ gettoken(l.custom_fields:identifier_pair,'=',1) }">
+     <MvASSIGN NAME = "l.custom_fields:identifier_value"        VALUE = "{ gettoken(l.custom_fields:identifier_pair,'=',2) }">
+
+     <MvASSIGN NAME = "l.custom_fields:field_code_name"  VALUE = "{ gettoken(l.custom_fields:field_code_pair,'=',1) }">
+     <MvASSIGN NAME = "l.custom_fields:field_code_value"   VALUE = "{ gettoken(l.custom_fields:field_code_pair,'=',2) }">
+
+     <MvASSIGN NAME = "l.custom_fields:insert_name"           VALUE = "{ gettoken(l.custom_fields:insert_pair,'=',1) }">
+     <MvASSIGN NAME = "l.custom_fields:insert_value"            VALUE = "{ gettoken(l.custom_fields:insert_pair,'=',2) }">
+
+     <MvCOMMENT>Create Template Entities from parsed variables</MvCOMMENT>
+
+    <MvASSIGN NAME = "l.all_settings:custom_fields:type_name"		VALUE = "{  l.custom_fields:type_name }">
+    <MvASSIGN NAME = "l.all_settings:custom_fields:type_value"		    VALUE = "{  l.custom_fields:type_value}">
+
+    <MvASSIGN NAME = "l.all_settings:custom_fields:identifier_name"		VALUE = "{  l.custom_fields:identifier_name }">
+    <MvASSIGN NAME = "l.all_settings:custom_fields:identifier_value"		    VALUE = "{  l.custom_fields:identifier_value}">
+
+    <MvASSIGN NAME = "l.all_settings:custom_fields:field_code_name"		VALUE = "{  l.custom_fields:field_code_name }">
+    <MvASSIGN NAME = "l.all_settings:custom_fields:field_code_value"		    VALUE = "{  l.custom_fields:field_code_value}">
+
+    <MvASSIGN NAME = "l.all_settings:custom_fields:insert_name"		VALUE = "{  l.custom_fields:insert_name }">
+    <MvASSIGN NAME = "l.all_settings:custom_fields:insert_value"		VALUE = "{  l.custom_fields:insert_value}">
+
+	
+    <MvCOMMENT>Process </MvCOMMENT>
+
+	<MvIF EXPR = "{ l.custom_fields:type_name EQ 'type' }">
+
+			
 
 		</MvIF>
 
