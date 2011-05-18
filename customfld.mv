@@ -67,72 +67,48 @@
 	
 	<MvCOMMENT>Parse Parameter and  split string into sections seperated by pipe symbol </MvCOMMENT>
     
-   
-    <MvCOMMENT>
-    <MvASSIGN NAME = "l.custom_fields:params:sub1"     VALUE = "{ gettoken(l.param,'|',1) }">
-    <MvASSIGN NAME = "l.custom_fields:params:sub2"     VALUE = "{ gettoken(l.param,'|',2) }">
-    <MvASSIGN NAME = "l.custom_fields:params:sub3"     VALUE = "{ gettoken(l.param,'|',3) }">
-    <MvASSIGN NAME = "l.custom_fields:params:sub4"    VALUE = "{ gettoken(l.param,'|',4) }">
 
-    <MvASSIGNARRAY NAME = "l.custom_fields:params" VALUE = "{ l.custom_fields:params:sub1 }">
-                   <MvDIMENSION INDEX = "1">
-                   <MvMEMBER NAME = "sub1">
-    </MvASSIGNARRAY>
+    <MvASSIGN NAME = "l.params" INDEX="1" VALUE = "{ gettoken(l.param,'|',1) }">
+    <MvASSIGN NAME = "l.params" INDEX="2"  VALUE = "{ gettoken(l.param,'|',2) }">
+    <MvASSIGN NAME = "l.params" INDEX="3"  VALUE = "{ gettoken(l.param,'|',3) }">
+    <MvASSIGN NAME = "l.params" INDEX="4"  VALUE = "{ gettoken(l.param,'|',4) }">
 
-    <MvASSIGNARRAY NAME = "l.custom_fields:params" VALUE = "{ l.custom_fields:params:sub2 }">
-                   <MvDIMENSION INDEX = "1">
-                   <MvMEMBER NAME = "sub2">
-    </MvASSIGNARRAY>
-
-    <MvASSIGNARRAY NAME = "l.custom_fields:params" VALUE = "{ l.custom_fields:params:sub3 }">
-                   <MvDIMENSION INDEX = "1">
-                   <MvMEMBER NAME = "sub3">
-    </MvASSIGNARRAY>
-
-    <MvASSIGNARRAY NAME = "l.custom_fields:params" VALUE = "{ l.custom_fields:params:sub4 }">
-                   <MvDIMENSION INDEX = "1">
-                   <MvMEMBER NAME = "sub4">
-    </MvASSIGNARRAY>
-    </MvCOMMENT>
-
-    <MvASSIGN NAME = "l.custom_fields:params" INDEX="{ 1 }" MEMBER = "sub1" VALUE = "{ gettoken(l.param,'|',1) }">
-    <MvASSIGN NAME = "l.custom_fields:params" INDEX="{ 1 }" MEMBER = "sub2" VALUE = "{ gettoken(l.param,'|',2) }">
-    <MvASSIGN NAME = "l.custom_fields:params" INDEX="{ 1 " MEMBER = "sub3" VALUE = "{ gettoken(l.param,'|',3) }">
-    <MvASSIGN NAME = "l.custom_fields:params" INDEX="{ 1 }" MEMBER = "sub4" VALUE = "{ gettoken(l.param,'|',4) }">
         
         
         <MvCOMMENT>Parse Name Value Pairs into their own variables </MvCOMMENT>
 
        <MvASSIGN NAME="g.posn" VALUE="1 ">
 
-       <MvWHILE  EXPR="g.posn LE 4">
+       <MvWHILE  EXPR="{ g.posn LE 4 }">
+                
+                <MvIF EXPR="{ 'type=' CIN l.params[ g.posn ] }"> 
 
-                <MvIF EXPR="{ 'type=' CIN l.custom_fields:params[ g.posn ] }">
+                       <MvASSIGN NAME = "l.custom_fields:type_name"               VALUE = "{ gettoken(l.params[ g.posn ] ,'=',1) }">
+                       <MvASSIGN NAME = "l.custom_fields:type_value"                VALUE = "{ gettoken(l.params[ g.posn ] ,'=',2) }">
 
-                       <MvASSIGN NAME = "l.custom_fields:type_name"             VALUE = "{ gettoken(l.custom_fields:params[ g.posn ] ,'=',1) }">
-                       <MvASSIGN NAME = "l.custom_fields:type_value"              VALUE = "{ gettoken(l.custom_fields:params[ g.posn ] ,'=',2) }">
+                <MvELSEIF EXPR="{ 'id=' CIN l.params[ g.posn ]  OR  'code=' CIN l.custom_fields:params[ g.posn ] }">
 
-                <MvELSEIF EXPR="{ 'id=' CIN l.custom_fields:params[ g.posn ]  OR  'code=' CIN l.custom_fields:params[ g.posn ] }">
-
-                     <MvASSIGN NAME = "l.custom_fields:identifier_name"       VALUE = "{ gettoken(l.custom_fields:params[ g.posn ] ,'=',1) }">
-                     <MvASSIGN NAME = "l.custom_fields:identifier_value"        VALUE = "{ gettoken(l.custom_fields:params[ g.posn ] ,'=',2) }">
+                     <MvASSIGN NAME = "l.custom_fields:identifier_name"        VALUE = "{ gettoken(l.params[ g.posn ] ,'=',1) }">
+                     <MvASSIGN NAME = "l.custom_fields:identifier_value"         VALUE = "{ gettoken(l.params[ g.posn ] ,'=',2) }">
 
 
-                <MvELSEIF EXPR="{  'field_code=' CIN l.custom_fields:params[ g.posn ] }">
+                <MvELSEIF EXPR="{  'field_code=' CIN l.params[ g.posn ] }">
 
-                      <MvASSIGN NAME = "l.custom_fields:field_code_name"  VALUE = "{ gettoken(l.custom_fields:params[ g.posn ] ,'=',1) }">
-                      <MvASSIGN NAME = "l.custom_fields:field_code_value"   VALUE = "{ gettoken(l.custom_fields:params[ g.posn ] ,'=',2) }"> 
+                      <MvASSIGN NAME = "l.custom_fields:field_code_name"        VALUE = "{ gettoken(l.params[ g.posn ] ,'=',1) }">
+                      <MvASSIGN NAME = "l.custom_fields:field_code_value"         VALUE = "{ gettoken(l.params[ g.posn ] ,'=',2) }"> 
 
-                <MvELSEIF EXPR="{ 'value=' CIN l.custom_fields:params[ g.posn ] }">
+                <MvELSEIF EXPR="{ 'value=' CIN l.params[ g.posn ] }">
 
-                     <MvASSIGN NAME = "l.custom_fields:insert_name"           VALUE = "{ gettoken(l.custom_fields:params[ g.posn ] ,'=',1) }">
-                     <MvASSIGN NAME = "l.custom_fields:insert_value"            VALUE = "{ gettoken(l.custom_fields:params[ g.posn ] ,'=',2) }">
+                     <MvASSIGN NAME = "l.custom_fields:insert_name"              VALUE = "{ gettoken(l.params[ g.posn ] ,'=',1) }">
+                     <MvASSIGN NAME = "l.custom_fields:insert_value"               VALUE = "{ gettoken(l.params[ g.posn ] ,'=',2) }">
 
                 </MvIF>
 
                 <MvASSIGN NAME="g.posn" VALUE="{ g.posn + 1 }">
                 <MvWHILECONTINUE> 
     </MvWHILE>
+
+    <MvASSIGN NAME="l.settings" VALUE="l.custom_fields">
 
 
      <MvCOMMENT>Create Template Entities from parsed variables</MvCOMMENT>
