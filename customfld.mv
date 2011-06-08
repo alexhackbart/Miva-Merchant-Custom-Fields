@@ -64,75 +64,39 @@
 </MvFUNCTION>
 
 <MvFUNCTION NAME = "ComponentModule_Render_Start" PARAMETERS = "module var, item, all_settings var, settings var, param" STANDARDOUTPUTLEVEL = "">
-	
-	<MvCOMMENT>Parse Parameter and  split string into sections seperated by pipe symbol </MvCOMMENT>
-    
 
-    <MvASSIGN NAME = "l.params" INDEX="1" VALUE = "{ gettoken(l.param,'|',1) }">
-    <MvASSIGN NAME = "l.params" INDEX="2"  VALUE = "{ gettoken(l.param,'|',2) }">
-    <MvASSIGN NAME = "l.params" INDEX="3"  VALUE = "{ gettoken(l.param,'|',3) }">
-    <MvASSIGN NAME = "l.params" INDEX="4"  VALUE = "{ gettoken(l.param,'|',4) }">
+        <MvCOMMENT>Call Parse_Parameter Function</MvCOMMENT>
 
-        
-        
-        <MvCOMMENT>Parse Name Value Pairs into their own variables </MvCOMMENT>
+        <MvASSIGN NAME="l.parse_success" VALUE="{ Parse_Parameter( l.param, l.custom_fields, l.all_settings ) }" >
 
-       <MvASSIGN NAME="g.posn" VALUE="1 ">
-
-       <MvWHILE  EXPR="{ g.posn LE 4 }">
-                
-                <MvIF EXPR="{ 'type=' CIN l.params[ g.posn ] }"> 
-
-                       <MvASSIGN NAME = "l.custom_fields:type_name"               VALUE = "{ gettoken(l.params[ g.posn ] ,'=',1) }">
-                       <MvASSIGN NAME = "l.custom_fields:type_value"                VALUE = "{ gettoken(l.params[ g.posn ] ,'=',2) }">
-
-                <MvELSEIF EXPR="{ 'id=' CIN l.params[ g.posn ]  OR  'code=' CIN l.custom_fields:params[ g.posn ] }">
-
-                     <MvASSIGN NAME = "l.custom_fields:identifier_name"        VALUE = "{ gettoken(l.params[ g.posn ] ,'=',1) }">
-                     <MvASSIGN NAME = "l.custom_fields:identifier_value"         VALUE = "{ gettoken(l.params[ g.posn ] ,'=',2) }">
-
-
-                <MvELSEIF EXPR="{  'field_code=' CIN l.params[ g.posn ] }">
-
-                      <MvASSIGN NAME = "l.custom_fields:field_code_name"        VALUE = "{ gettoken(l.params[ g.posn ] ,'=',1) }">
-                      <MvASSIGN NAME = "l.custom_fields:field_code_value"         VALUE = "{ gettoken(l.params[ g.posn ] ,'=',2) }"> 
-
-                <MvELSEIF EXPR="{ 'value=' CIN l.params[ g.posn ] }">
-
-                     <MvASSIGN NAME = "l.custom_fields:insert_name"              VALUE = "{ gettoken(l.params[ g.posn ] ,'=',1) }">
-                     <MvASSIGN NAME = "l.custom_fields:insert_value"               VALUE = "{ gettoken(l.params[ g.posn ] ,'=',2) }">
-
-                </MvIF>
-
-                <MvASSIGN NAME="g.posn" VALUE="{ g.posn + 1 }">
-                <MvWHILECONTINUE> 
-    </MvWHILE>
-
-    <MvASSIGN NAME="l.settings" VALUE="l.custom_fields">
-
-
-     <MvCOMMENT>Create Template Entities from parsed variables</MvCOMMENT>
-
-    <MvASSIGN NAME = "l.all_settings:custom_fields:type_name"		VALUE = "{  l.custom_fields:type_name }">
-    <MvASSIGN NAME = "l.all_settings:custom_fields:type_value"		    VALUE = "{  l.custom_fields:type_value}">
-
-    <MvASSIGN NAME = "l.all_settings:custom_fields:identifier_name"		VALUE = "{  l.custom_fields:identifier_name }">
-    <MvASSIGN NAME = "l.all_settings:custom_fields:identifier_value"		    VALUE = "{  l.custom_fields:identifier_value}">
-
-    <MvASSIGN NAME = "l.all_settings:custom_fields:field_code_name"		VALUE = "{  l.custom_fields:field_code_name }">
-    <MvASSIGN NAME = "l.all_settings:custom_fields:field_code_value"		    VALUE = "{  l.custom_fields:field_code_value}">
-
-    <MvASSIGN NAME = "l.all_settings:custom_fields:insert_name"		VALUE = "{  l.custom_fields:insert_name }">
-    <MvASSIGN NAME = "l.all_settings:custom_fields:insert_value"		VALUE = "{  l.custom_fields:insert_value}">
-
-	
-    <MvCOMMENT>Process </MvCOMMENT>
-
-	<MvIF EXPR = "{ l.custom_fields:type_name EQ 'type' }">
-
-			
-
+         <MvIF EXPR = "{ l.parse_success EQ 0 }">
+					<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'Custom_Field_Error', 'Unable to parse item. Please check synax of item call.' ) }">
 		</MvIF>
+
+
+        <MvCOMMENT>Check and see if the it is a read or write</MvCOMMENT>
+      
+        <MvIF EXPR="{ NOT ISNULL (l.custom_fields:insert_value) }"> 
+             <MvCOMMENT>Custom Field Write</MvCOMMENT>
+            
+             <MvIF EXPR="NOT ( Get_Field_Code( l.custom_fields ) }" >
+                    <MvFUNCTIONRETURN VALUE="0">
+             </MvIF>
+
+             <MvIF EXPR="NOT ( Custom_Field_Write( l.custom_fields ) }" >
+                    <MvFUNCTIONRETURN VALUE="0">
+             </MvIF>
+        
+        
+        <MvELSE>  
+            <MvCOMMENT>Custom Field Read</MvCOMMENT>
+            
+
+
+        </MvIF>
+
+        <MvASSIGN NAME="l.is_read" VALUE="{ Parse_Parameter( l.param, l.custom_fields, l.all_settings ) }" >
+
 
 	<MvFUNCTIONRETURN VALUE="1">
 </MvFUNCTION>
@@ -2692,3 +2656,128 @@ function CFM_CustomerField_Edit( field )
 
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
+
+<MvFUNCTION NAME = "Parse_Parameter" PARAMETERS = "param var, custom_fields var, all_settings var" STANDARDOUTPUTLEVEL = "">
+   
+    <MvCOMMENT>Parse Parameter and  split string into sections seperated by pipe symbol </MvCOMMENT>
+
+    <MvASSIGN NAME = "l.params" INDEX="1" VALUE = "{ gettoken(l.param,'|',1) }">
+    <MvASSIGN NAME = "l.params" INDEX="2"  VALUE = "{ gettoken(l.param,'|',2) }">
+    <MvASSIGN NAME = "l.params" INDEX="3"  VALUE = "{ gettoken(l.param,'|',3) }">
+    <MvASSIGN NAME = "l.params" INDEX="4"  VALUE = "{ gettoken(l.param,'|',4) }">
+
+
+        <MvCOMMENT>Parse Name Value Pairs into their own variables </MvCOMMENT>
+
+       <MvASSIGN NAME="g.posn" VALUE="1 ">
+
+       <MvWHILE  EXPR="{ g.posn LE 4 }">
+                
+                <MvIF EXPR="{ 'type=' CIN l.params[ g.posn ] }"> 
+
+                       <MvASSIGN NAME = "l.custom_fields:type_value"                VALUE = "{ gettoken(l.params[ g.posn ] ,'=',2) }">
+
+                <MvELSEIF EXPR="{ 'id=' CIN l.params[ g.posn ]  OR  'code=' CIN l.custom_fields:params[ g.posn ] }">
+
+                     <MvASSIGN NAME = "l.custom_fields:identifier_value"         VALUE = "{ gettoken(l.params[ g.posn ] ,'=',2) }">
+
+                <MvELSEIF EXPR="{  'field_code=' CIN l.params[ g.posn ] }">
+
+                      <MvASSIGN NAME = "l.custom_fields:field_code_value"      VALUE = "{ gettoken(l.params[ g.posn ] ,'=',2) }"> 
+
+                <MvELSEIF EXPR="{ 'value=' CIN l.params[ g.posn ] }">
+
+                     <MvASSIGN NAME = "l.custom_fields:insert_value"               VALUE = "{ gettoken(l.params[ g.posn ] ,'=',2) }">
+
+                </MvIF>
+
+                <MvASSIGN NAME="g.posn" VALUE="{ g.posn + 1 }">
+                <MvWHILECONTINUE> 
+    </MvWHILE>
+
+
+     <MvCOMMENT>Create Template Entities from parsed variables</MvCOMMENT>
+
+    <MvASSIGN NAME = "l.all_settings:custom_fields:type_value"		             VALUE = "{  l.custom_fields:type_value}">
+
+    <MvASSIGN NAME = "l.all_settings:custom_fields:identifier_value"		    VALUE = "{  l.custom_fields:identifier_value}">
+
+    <MvASSIGN NAME = "l.all_settings:custom_fields:field_code_value"     VALUE = "{  l.custom_fields:field_code_value}">
+
+    <MvASSIGN NAME = "l.all_settings:custom_fields:insert_value"             VALUE = "{  l.custom_fields:insert_value}">
+
+
+	<MvFUNCTIONRETURN VALUE = "1">
+</MvFUNCTION>
+
+
+
+<MvFUNCTION NAME = "Get_Field_Code" PARAMETERS = "custom_fields var" STANDARDOUTPUTLEVEL = "">
+   
+   <MvIF EXPR="{ l.custom_fields:field_code_value EQ 'ALL' OR l.custom_fields:field_code_vlaue EQ 'All' OR l.custom_fields:field_code_value EQ 'all'   }">
+
+        <MvCOMMENT>Create Array of All Custom Fields</MvCOMMENT>
+
+                 <MvIF EXPR="{  'product' CIN l.custom_fields:type_value  }">
+                
+
+                <MvELSEIF EXPR="{  'category' CIN l.custom_fields:type_value }">
+
+
+                <MvELSEIF EXPR="{  'customer' CIN l.custom_fields:type_value }">
+
+
+                <MvELSEIF EXPR="{  'order' CIN l.custom_fields:type_value }">
+
+                 
+                 <MvELSE>
+
+                        <MvCOMMENT>Didn't find correct parameter in type_value field. Return 0</MvCOMMENT>
+
+                        <MvFUNCTIONRETURN VALUE = "0">
+
+               </MvIF>
+
+
+
+   <MvELSEIF EXPR="{ ',' IN l.custom_fields:field_code_value }">
+
+         <MvCOMMENT>Split list by commas and create array</MvCOMMENT>
+
+    <MvELSE>
+
+          <MvCOMMENT>Only a Single code was provided. Set Variable</MvCOMMENT>
+          <MvASSIGN NAME="l.custom_fields:field_code" VALUE="{ l.custom_fields:field_code_value }">
+
+   </MvIF>
+    
+	<MvFUNCTIONRETURN VALUE = "1">
+</MvFUNCTION>
+
+
+
+<MvFUNCTION NAME = "Custom_Field_Write" PARAMETERS = "custom_fields var" STANDARDOUTPUTLEVEL = "">
+   
+     <MvIF EXPR="{  'product' CIN l.custom_fields:type_value  }">
+    
+
+    <MvELSEIF EXPR="{  'category' CIN l.custom_fields:type_value }">
+
+
+    <MvELSEIF EXPR="{  'customer' CIN l.custom_fields:type_value }">
+
+
+    <MvELSEIF EXPR="{  'order' CIN l.custom_fields:type_value }">
+
+     
+     <MvELSE>
+
+            <MvCOMMENT>Didn't find correct parameter in type_value field. Return 0</MvCOMMENT>
+
+            <MvFUNCTIONRETURN VALUE = "0">
+
+   </MvIF>
+    
+	<MvFUNCTIONRETURN VALUE = "1">
+</MvFUNCTION>
+
