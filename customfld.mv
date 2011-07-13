@@ -23,8 +23,8 @@
 <MvCOMMENT>Store Functions</MvCOMMENT>
 
 <MvFUNCTION NAME = "Module_Description" PARAMETERS = "module var" STANDARDOUTPUTLEVEL = "">
-	<MvASSIGN NAME = "l.module:code"		VALUE = "JAB_customfields">
-	<MvASSIGN NAME = "l.module:name"		VALUE = "Custom Fields">
+	<MvASSIGN NAME = "l.module:code"		VALUE = "adv_customfields">
+	<MvASSIGN NAME = "l.module:name"		VALUE = "Advanced Custom Fields">
 	<MvASSIGN NAME = "l.module:provider"	VALUE = "Brennan, Alex and Joe - Miva Merchant">
 	<MvASSIGN NAME = "l.module:version"		VALUE = "5.6000">
 	<MvASSIGN NAME = "l.module:api_ver"		VALUE = "5.00">
@@ -78,8 +78,9 @@
       
         <MvIF EXPR="{ NOT ISNULL (l.custom_fields:insert_value) }"> 
              <MvCOMMENT>Custom Field Write</MvCOMMENT>
+
             
-             <MvIF EXPR="NOT ( Get_Field_Code( l.custom_fields ) }" >
+             <MvIF EXPR="NOT ( Get_Field_Code( l.custom_fields,  ) }" >
                     <MvFUNCTIONRETURN VALUE="0">
              </MvIF>
 
@@ -107,260 +108,68 @@
 
 
 <MvFUNCTION NAME = "Module_Install_Store" PARAMETERS = "module var" STANDARDOUTPUTLEVEL = "">
-	<MvIF EXPR = "{ NOT [ g.Module_Library_DB ].StoreKey_Insert( 'CFM_Fields', 1 ) }">
-		<MvFUNCTIONRETURN VALUE = 0>
-	</MvIF>
 
-	<MvCOMMENT>
-	|
-	| Category Fields
-	|
-	</MvCOMMENT>
+	<MvCOMMENT>Create Database Structure</MvCOMMENT>
 
 	<MvQUERY NAME	= "Merchant"
-			 QUERY	= "{ 'CREATE TABLE ' $  g.Store_Table_Prefix $ 'CFM_CatFields
+			 QUERY	= "{ 'CREATE TABLE ' $  g.Store_Table_Prefix $ 'customfields_fields
 						  (
-							id		' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 ) $ ',
-							code	' $ [ g.Module_Library_Native_DBAPI ].DB_Type_CHAR( 50 ) $ ',
-							name	' $ [ g.Module_Library_Native_DBAPI ].DB_Type_CHAR( 100 ) $ '
+							id		                ' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 ) $ ' NOT NULL AUTO_INCREMENT,
+                            disp_order    ' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 ) $ ',
+							field_type	    ' $ [ g.Module_Library_Native_DBAPI ].DB_Type_CHAR( 255) $ ',
+							code	            ' $ [ g.Module_Library_Native_DBAPI ].DB_Type_CHAR( 100 ) $ ',
+                            name	            ' $ [ g.Module_Library_Native_DBAPI ].DB_Type_CHAR( 255 ) $ ',
+                            comments	    ' $ [ g.Module_Library_Native_DBAPI ].DB_Type_MEMO() $ ',
+                            input_type	    ' $ [ g.Module_Library_Native_DBAPI ].DB_Type_CHAR( 255 ) $ ',
+                            PRIMARY KEY(id)
+
 						  ) ' }">
+
 	<MvIF EXPR = "{ g.MvQUERY_Error }">
-		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00043', g.MvQUERY_Error ) }">
+		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CFL-00001', g.MvQUERY_Error ) }">
 	</MvIF>
 
 	<MvQUERY NAME	= "Merchant"
-			 QUERY	= "{ 'CREATE UNIQUE INDEX ' $ g.Store_Table_Prefix $ 'CFM_CatFields_1 ON ' $ g.Store_Table_Prefix $ 'CFM_CatFields ( id )' }">
+			 QUERY	= "{ 'CREATE UNIQUE INDEX ' $ g.Store_Table_Prefix $ 'customfields_fields_1 ON ' $ g.Store_Table_Prefix $ 'customfields_fields ( id )' }">
 	<MvIF EXPR = "{ g.MvQUERY_Error }">
-		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00044', g.MvQUERY_Error ) }">
+		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CFL-00002', g.MvQUERY_Error ) }">
 	</MvIF>
 
-	<MvQUERY NAME	= "Merchant"
-			 QUERY	= "{ 'CREATE INDEX ' $ g.Store_Table_Prefix $ 'CFM_CatFields_2 ON ' $ g.Store_Table_Prefix $ 'CFM_CatFields ( code )' }">
-	<MvIF EXPR = "{ g.MvQUERY_Error }">
-		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00045', g.MvQUERY_Error ) }">
-	</MvIF>
 
 	<MvQUERY NAME	= "Merchant"
-			 QUERY	= "{ 'CREATE TABLE ' $  g.Store_Table_Prefix $ 'CFM_CatValues
+			 QUERY	= "{ 'CREATE TABLE ' $  g.Store_Table_Prefix $ 'customfields_values
 						  (
-							field_id	' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 )	$ ',
-							cat_id		' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 )	$ ',
-							value		' $ [ g.Module_Library_Native_DBAPI ].DB_Type_CHAR( 254 )		$ ',
-							value_long	' $ [ g.Module_Library_Native_DBAPI ].DB_Type_MEMO()			$ '
+							field_id	            ' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 )	$ ',
+							product_id	        ' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 )	$ ',
+							cat_id		            ' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 )	$ ',
+                            cust_id		        ' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 )	$ ',
+							order_id	            ' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 )	$ ',
+                            field_type	        ' $ [ g.Module_Library_Native_DBAPI ].DB_Type_CHAR( 255 ) $ ',
+                            value	                ' $ [ g.Module_Library_Native_DBAPI ].DB_Type_MEMO() $ '
+
 						  ) ' }">
+
 	<MvIF EXPR = "{ g.MvQUERY_Error }">
-		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00046', g.MvQUERY_Error ) }">
+		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CFL-00001', g.MvQUERY_Error ) }">
 	</MvIF>
 
-	<MvQUERY NAME	= "Merchant"
-			 QUERY	= "{ 'CREATE UNIQUE INDEX ' $ g.Store_Table_Prefix $ 'CFM_CatValues_1 ON ' $ g.Store_Table_Prefix $ 'CFM_CatValues ( cat_id, field_id )' }">
-	<MvIF EXPR = "{ g.MvQUERY_Error }">
-		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00047', g.MvQUERY_Error ) }">
-	</MvIF>
 
-	<MvCOMMENT>
-	|
-	| Product Fields
-	|
-	</MvCOMMENT>
+	<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_MGR ].TemplateManager_Create_Item( 'customflds',	'adv_customfields' ) }">				
+        <MvFUNCTIONRETURN VALUE = 0> 
+   </MvIF>
 
-	<MvQUERY NAME	= "Merchant"
-			 QUERY	= "{ 'CREATE TABLE ' $  g.Store_Table_Prefix $ 'CFM_ProdFields
-						  (
-							id		' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 ) $ ',
-							code	' $ [ g.Module_Library_Native_DBAPI ].DB_Type_CHAR( 50 ) $ ',
-							name	' $ [ g.Module_Library_Native_DBAPI ].DB_Type_CHAR( 100 ) $ '
-						  ) ' }">
-	<MvIF EXPR = "{ g.MvQUERY_Error }">
-		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00001', g.MvQUERY_Error ) }">
-	</MvIF>
-
-	<MvQUERY NAME	= "Merchant"
-			 QUERY	= "{ 'CREATE UNIQUE INDEX ' $ g.Store_Table_Prefix $ 'CFM_ProdFields_1 ON ' $ g.Store_Table_Prefix $ 'CFM_ProdFields ( id )' }">
-	<MvIF EXPR = "{ g.MvQUERY_Error }">
-		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00002', g.MvQUERY_Error ) }">
-	</MvIF>
-
-	<MvQUERY NAME	= "Merchant"
-			 QUERY	= "{ 'CREATE INDEX ' $ g.Store_Table_Prefix $ 'CFM_ProdFields_2 ON ' $ g.Store_Table_Prefix $ 'CFM_ProdFields ( code )' }">
-	<MvIF EXPR = "{ g.MvQUERY_Error }">
-		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00003', g.MvQUERY_Error ) }">
-	</MvIF>
-
-	<MvQUERY NAME	= "Merchant"
-			 QUERY	= "{ 'CREATE TABLE ' $  g.Store_Table_Prefix $ 'CFM_ProdValues
-						  (
-							field_id	' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 )	$ ',
-							product_id	' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 )	$ ',
-							value		' $ [ g.Module_Library_Native_DBAPI ].DB_Type_CHAR( 254 )		$ ',
-							value_long	' $ [ g.Module_Library_Native_DBAPI ].DB_Type_MEMO()			$ '
-						  ) ' }">
-	<MvIF EXPR = "{ g.MvQUERY_Error }">
-		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00004', g.MvQUERY_Error ) }">
-	</MvIF>
-
-	<MvQUERY NAME	= "Merchant"
-			 QUERY	= "{ 'CREATE UNIQUE INDEX ' $ g.Store_Table_Prefix $ 'CFM_ProdValues_1 ON ' $ g.Store_Table_Prefix $ 'CFM_ProdValues ( product_id, field_id )' }">
-	<MvIF EXPR = "{ g.MvQUERY_Error }">
-		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00005', g.MvQUERY_Error ) }">
-	</MvIF>
-
-	<MvCOMMENT>
-	|
-	| Customer Fields
-	|
-	</MvCOMMENT>
-
-	<MvQUERY NAME	= "Merchant"
-			 QUERY	= "{ 'CREATE TABLE ' $  g.Store_Table_Prefix $ 'CFM_CustFields
-						  (
-							id		' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 ) $ ',
-							code	' $ [ g.Module_Library_Native_DBAPI ].DB_Type_CHAR( 50 ) $ ',
-							name	' $ [ g.Module_Library_Native_DBAPI ].DB_Type_CHAR( 100 ) $ '
-						  ) ' }">
-	<MvIF EXPR = "{ g.MvQUERY_Error }">
-		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00007', g.MvQUERY_Error ) }">
-	</MvIF>
-
-	<MvQUERY NAME	= "Merchant"
-			 QUERY	= "{ 'CREATE UNIQUE INDEX ' $ g.Store_Table_Prefix $ 'CFM_CustFields_1 ON ' $ g.Store_Table_Prefix $ 'CFM_CustFields ( id )' }">
-	<MvIF EXPR = "{ g.MvQUERY_Error }">
-		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00008', g.MvQUERY_Error ) }">
-	</MvIF>
-
-	<MvQUERY NAME	= "Merchant"
-			 QUERY	= "{ 'CREATE INDEX ' $ g.Store_Table_Prefix $ 'CFM_CustFields_2 ON ' $ g.Store_Table_Prefix $ 'CFM_CustFields ( code )' }">
-	<MvIF EXPR = "{ g.MvQUERY_Error }">
-		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00009', g.MvQUERY_Error ) }">
-	</MvIF>
-
-	<MvQUERY NAME	= "Merchant"
-			 QUERY	= "{ 'CREATE TABLE ' $  g.Store_Table_Prefix $ 'CFM_CustValues
-						  (
-							field_id	' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 )	$ ',
-							cust_id		' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 )	$ ',
-							value		' $ [ g.Module_Library_Native_DBAPI ].DB_Type_CHAR( 254 )		$ ',
-							value_long	' $ [ g.Module_Library_Native_DBAPI ].DB_Type_MEMO()			$ '
-						  ) ' }">
-	<MvIF EXPR = "{ g.MvQUERY_Error }">
-		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00010', g.MvQUERY_Error ) }">
-	</MvIF>
-
-	<MvQUERY NAME	= "Merchant"
-			 QUERY	= "{ 'CREATE UNIQUE INDEX ' $ g.Store_Table_Prefix $ 'CFM_CustValues_1 ON ' $ g.Store_Table_Prefix $ 'CFM_CustValues ( cust_id, field_id )' }">
-	<MvIF EXPR = "{ g.MvQUERY_Error }">
-		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00011', g.MvQUERY_Error ) }">
-	</MvIF>
-
-	<MvFUNCTIONRETURN VALUE = 1>
-</MvFUNCTION>
-
-<MvFUNCTION NAME = "Module_Upgrade_Store" PARAMETERS = "module var, version" STANDARDOUTPUTLEVEL = "">
-	<MvIF EXPR = "{ l.version LT 5.5003 }">
-		<MvCOMMENT>
-		|
-		| Category Fields
-		|
-		</MvCOMMENT>
-
-		<MvQUERY NAME	= "Merchant"
-				 QUERY	= "{ 'CREATE TABLE ' $  g.Store_Table_Prefix $ 'CFM_CatFields
-							  (
-								id		' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 ) $ ',
-								code	' $ [ g.Module_Library_Native_DBAPI ].DB_Type_CHAR( 50 ) $ ',
-								name	' $ [ g.Module_Library_Native_DBAPI ].DB_Type_CHAR( 100 ) $ '
-							  ) ' }">
-		<MvIF EXPR = "{ g.MvQUERY_Error }">
-			<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00049', g.MvQUERY_Error ) }">
-		</MvIF>
-
-		<MvQUERY NAME	= "Merchant"
-				 QUERY	= "{ 'CREATE UNIQUE INDEX ' $ g.Store_Table_Prefix $ 'CFM_CatFields_1 ON ' $ g.Store_Table_Prefix $ 'CFM_CatFields ( id )' }">
-		<MvIF EXPR = "{ g.MvQUERY_Error }">
-			<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00050', g.MvQUERY_Error ) }">
-		</MvIF>
-
-		<MvQUERY NAME	= "Merchant"
-				 QUERY	= "{ 'CREATE INDEX ' $ g.Store_Table_Prefix $ 'CFM_CatFields_2 ON ' $ g.Store_Table_Prefix $ 'CFM_CatFields ( code )' }">
-		<MvIF EXPR = "{ g.MvQUERY_Error }">
-			<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00051', g.MvQUERY_Error ) }">
-		</MvIF>
-
-		<MvQUERY NAME	= "Merchant"
-				 QUERY	= "{ 'CREATE TABLE ' $  g.Store_Table_Prefix $ 'CFM_CatValues
-							  (
-								field_id	' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 )	$ ',
-								cat_id		' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 )	$ ',
-								value		' $ [ g.Module_Library_Native_DBAPI ].DB_Type_CHAR( 254 )		$ ',
-								value_long	' $ [ g.Module_Library_Native_DBAPI ].DB_Type_MEMO()			$ '
-							  ) ' }">
-		<MvIF EXPR = "{ g.MvQUERY_Error }">
-			<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00052', g.MvQUERY_Error ) }">
-		</MvIF>
-
-		<MvQUERY NAME	= "Merchant"
-				 QUERY	= "{ 'CREATE UNIQUE INDEX ' $ g.Store_Table_Prefix $ 'CFM_CatValues_1 ON ' $ g.Store_Table_Prefix $ 'CFM_CatValues ( cat_id, field_id )' }">
-		<MvIF EXPR = "{ g.MvQUERY_Error }">
-			<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00053', g.MvQUERY_Error ) }">
-		</MvIF>
-
-		<MvCOMMENT>
-		|
-		| Product Fields
-		|
-		</MvCOMMENT>
-
-		<MvASSIGN NAME = "l.null" VALUE = "{ [ g.Module_Library_Native_DBAPI ].DB_Drop_Index( g.Store_Table_Prefix $ 'CFM_ProdValues', g.Store_Table_Prefix $ 'CFM_ProdValues_1' ) }">
-		<MvASSIGN NAME = "l.null" VALUE = "{ [ g.Module_Library_Native_DBAPI ].DB_Drop_Index( g.Store_Table_Prefix $ 'CFM_ProdValues', g.Store_Table_Prefix $ 'CFM_ProdValues_2' ) }">
-
-		<MvQUERY NAME	= "Merchant"
-				 QUERY	= "{ 'ALTER TABLE ' $ g.Store_Table_Prefix $ 'CFM_ProdValues ADD value_long ' $ [ g.Module_Library_Native_DBAPI ].DB_Type_MEMO() }">
-		<MvIF EXPR = "{ g.MvQUERY_Error }">
-			<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00055', g.MvQUERY_Error ) }">
-		</MvIF>
-
-		<MvQUERY NAME	= "Merchant"
-				 QUERY	= "{ 'CREATE UNIQUE INDEX ' $ g.Store_Table_Prefix $ 'CFM_ProdValues_1 ON ' $ g.Store_Table_Prefix $ 'CFM_ProdValues ( product_id, field_id )' }">
-		<MvIF EXPR = "{ g.MvQUERY_Error }">
-			<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00056', g.MvQUERY_Error ) }">
-		</MvIF>
-
-		<MvCOMMENT>
-		|
-		| Customer Fields
-		|
-		</MvCOMMENT>
-
-		<MvASSIGN NAME = "l.null" VALUE = "{ [ g.Module_Library_Native_DBAPI ].DB_Drop_Index( g.Store_Table_Prefix $ 'CFM_CustValues', g.Store_Table_Prefix $ 'CFM_CustValues_1' ) }">
-		<MvASSIGN NAME = "l.null" VALUE = "{ [ g.Module_Library_Native_DBAPI ].DB_Drop_Index( g.Store_Table_Prefix $ 'CFM_CustValues', g.Store_Table_Prefix $ 'CFM_CustValues_2' ) }">
-
-		<MvQUERY NAME	= "Merchant"
-				 QUERY	= "{ 'ALTER TABLE ' $ g.Store_Table_Prefix $ 'CFM_CustValues ADD value_long ' $ [ g.Module_Library_Native_DBAPI ].DB_Type_MEMO() }">
-		<MvIF EXPR = "{ g.MvQUERY_Error }">
-			<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00058', g.MvQUERY_Error ) }">
-		</MvIF>
-
-		<MvQUERY NAME	= "Merchant"
-				 QUERY	= "{ 'CREATE UNIQUE INDEX ' $ g.Store_Table_Prefix $ 'CFM_CustValues_1 ON ' $ g.Store_Table_Prefix $ 'CFM_CustValues ( cust_id, field_id )' }">
-		<MvIF EXPR = "{ g.MvQUERY_Error }">
-			<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CST-00059', g.MvQUERY_Error ) }">
-		</MvIF>
-	</MvIF>
 
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
 
 <MvFUNCTION NAME = "Module_Uninstall_Store" PARAMETERS = "module var" STANDARDOUTPUTLEVEL = "" ERROROUTPUTLEVEL = "">
-	<MvASSIGN NAME = "l.null" VALUE = "{ [ g.Module_Library_DB ].StoreKey_Delete( 'CFM_Fields' ) }">
 
-	<MvQUERY NAME = "Merchant" QUERY = "{ 'DROP TABLE ' $  g.Store_Table_Prefix $ 'CFM_CatFields' }">
-	<MvQUERY NAME = "Merchant" QUERY = "{ 'DROP TABLE ' $  g.Store_Table_Prefix $ 'CFM_CatValues' }">
+	<MvQUERY NAME = "Merchant" QUERY = "{ 'DROP TABLE ' $  g.Store_Table_Prefix $ 'customfields_fields' }">
+	<MvQUERY NAME = "Merchant" QUERY = "{ 'DROP TABLE ' $  g.Store_Table_Prefix $ 'customfields_values' }">
 
-	<MvQUERY NAME = "Merchant" QUERY = "{ 'DROP TABLE ' $  g.Store_Table_Prefix $ 'CFM_ProdFields' }">
-	<MvQUERY NAME = "Merchant" QUERY = "{ 'DROP TABLE ' $  g.Store_Table_Prefix $ 'CFM_ProdValues' }">
-
-	<MvQUERY NAME = "Merchant" QUERY = "{ 'DROP TABLE ' $  g.Store_Table_Prefix $ 'CFM_CustFields' }">
-	<MvQUERY NAME = "Merchant" QUERY = "{ 'DROP TABLE ' $  g.Store_Table_Prefix $ 'CFM_CustValues' }">
+    <MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_MGR ].TemplateManager_Delete_Item( 'customflds') }">				
+        <MvFUNCTIONRETURN VALUE = 0> 
+   </MvIF>
 
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
@@ -2714,7 +2523,7 @@ function CFM_CustomerField_Edit( field )
 
 <MvFUNCTION NAME = "Get_Field_Code" PARAMETERS = "custom_fields var" STANDARDOUTPUTLEVEL = "">
    
-   <MvIF EXPR="{ l.custom_fields:field_code_value EQ 'ALL' OR l.custom_fields:field_code_vlaue EQ 'All' OR l.custom_fields:field_code_value EQ 'all'   }">
+   <MvIF EXPR="{ l.custom_fields:field_code_value EQ 'ALL' OR l.custom_fields:field_code_value EQ 'All' OR l.custom_fields:field_code_value EQ 'all'   }">
 
         <MvCOMMENT>Create Array of All Custom Fields</MvCOMMENT>
 
