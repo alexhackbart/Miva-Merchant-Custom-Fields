@@ -74,26 +74,41 @@
 					<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'Custom_Field_Error', 'Unable to parse item. Please check synax of item call.' ) }">
 		</MvIF>
 
+      <MvEVAL EXPR="{ 'Field Code: '  $ l.custom_fields:field_code_value $ '<br>' }">
+     <MvEVAL EXPR="{ 'Indentifier: '  $ l.custom_fields:identifier_value $ '<br>' }">
+     <MvEVAL EXPR="{ 'Insert Value: '  $ l.custom_fields:insert_value$ '<br>'  }">
+      <MvEVAL EXPR="{ 'Field Code: '  $ l.custom_fields:field_code_value $ '<br>' }">
 
         <MvCOMMENT>Check and see if the it is a read or write</MvCOMMENT>
       
         <MvIF EXPR="{ NOT ISNULL (l.custom_fields:insert_value) }"> 
              <MvCOMMENT>Custom Field Write</MvCOMMENT>
 
-            
-             <MvIF EXPR="NOT ( Get_Field_Code( l.custom_fields,  ) }" >
-                    <MvFUNCTIONRETURN VALUE="0">
-             </MvIF>
+         
+            <MvIF EXPR="{ Entry_Exists( l.custom_fields )  EQ 1 }" >
 
-             <MvIF EXPR="NOT ( Custom_Field_Write( l.custom_fields ) }" >
-                    <MvFUNCTIONRETURN VALUE="0">
-             </MvIF>
+                   <MvIF EXPR="{ NOT ( Custom_Field_Update( l.custom_fields ) ) }" >
+                        <MvFUNCTIONRETURN VALUE="0">
+                 </MvIF>
+                  
+            <MvELSE>
+
+                 <MvIF EXPR="{ NOT ( Custom_Field_Write( l.custom_fields ) ) }" >
+                        <MvFUNCTIONRETURN VALUE="0">
+                 </MvIF>
+
+            </MvIF>
+
+
+
         
         
         <MvELSE>  
             <MvCOMMENT>Custom Field Read</MvCOMMENT>
             
-
+            <MvIF EXPR="NOT ( Get_Field_Code( l.custom_fields,  ) }" >
+                    <MvFUNCTIONRETURN VALUE="0">
+             </MvIF>
 
         </MvIF>
 
@@ -124,6 +139,7 @@
                             input_type	    ' $ [ g.Module_Library_Native_DBAPI ].DB_Type_CHAR( 255 ) $ ',
                             PRIMARY KEY(id)
 
+	                  ) ' }">
 
 	<MvIF EXPR = "{ g.MvQUERY_Error }">
 		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-UTL-CFL-00001', g.MvQUERY_Error ) }">
@@ -154,10 +170,6 @@
 	</MvIF>
 
 
-	<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_MGR ].TemplateManager_Create_Item( 'customflds',	'adv_customfields' ) }">				
-        <MvFUNCTIONRETURN VALUE = 0> 
-   </MvIF>
-
 
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
@@ -171,6 +183,15 @@
         <MvFUNCTIONRETURN VALUE = 0> 
    </MvIF>
 
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>
+
+
+<MvFUNCTION NAME = "Module_Upgrade" PARAMETERS = "module var, version" STANDARDOUTPUTLEVEL = "">
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "Module_Upgrade_Store" PARAMETERS = "module var, version" STANDARDOUTPUTLEVEL = "">
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
 
@@ -2482,17 +2503,25 @@ function CFM_CustomerField_Edit( field )
 
        <MvWHILE  EXPR="{ g.posn LE 4 }">
                 
-                <MvIF EXPR="{ 'type=' CIN l.params[ g.posn ] }"> 
+                <MvIF EXPR="{  'field_code=' CIN l.params[ g.posn ]  }"> 
 
-                       <MvASSIGN NAME = "l.custom_fields:type_value"                VALUE = "{ gettoken(l.params[ g.posn ] ,'=',2) }">
+                        <MvASSIGN NAME = "l.custom_fields:field_code_value"        VALUE = "{ gettoken(l.params[ g.posn ] ,'=',2) }">
+                   
+                        
+                <MvELSEIF EXPR="{  'code=' CIN l.params[ g.posn ] }">
 
-                <MvELSEIF EXPR="{ 'id=' CIN l.params[ g.posn ]  OR  'code=' CIN l.custom_fields:params[ g.posn ] }">
+                      <MvASSIGN NAME = "l.custom_fields:identifier_value"         VALUE = "{ gettoken(l.params[ g.posn ] ,'=',2) }">
+                      <MvASSIGN NAME = "l.runIDLookup"         VALUE = "true">
+                    
 
-                     <MvASSIGN NAME = "l.custom_fields:identifier_value"         VALUE = "{ gettoken(l.params[ g.posn ] ,'=',2) }">
+                 <MvELSEIF EXPR="{ 'id=' CIN l.params[ g.posn ] }">
 
-                <MvELSEIF EXPR="{  'field_code=' CIN l.params[ g.posn ] }">
+                        <MvASSIGN NAME = "l.custom_fields:identifier_value"         VALUE = "{ gettoken(l.params[ g.posn ] ,'=',2) }"> 
 
-                      <MvASSIGN NAME = "l.custom_fields:field_code_value"      VALUE = "{ gettoken(l.params[ g.posn ] ,'=',2) }"> 
+                <MvELSEIF EXPR="{ 'type=' CIN l.params[ g.posn ] }">
+
+                      <MvASSIGN NAME = "l.custom_fields:type_value"                VALUE = "{ gettoken(l.params[ g.posn ] ,'=',2) }">
+                      
 
                 <MvELSEIF EXPR="{ 'value=' CIN l.params[ g.posn ] }">
 
@@ -2503,6 +2532,16 @@ function CFM_CustomerField_Edit( field )
                 <MvASSIGN NAME="g.posn" VALUE="{ g.posn + 1 }">
                 <MvWHILECONTINUE> 
     </MvWHILE>
+                               <MvEVAL EXPR="{'parse: ' $  l.custom_fields:field_code_value }">
+                            
+                          <MvASSIGN NAME = "l.custom_fields:field_code_value"        VALUE="{ Field_ID_Lookup(l.custom_fields, l.custom_fields:field_code_value) }">
+
+                         <MvCOMMENT>If the product code was passed into the function, do a Product ID lookup.</MvCOMMENT>
+
+                         <MvIF EXPR="l.runIDLookup EQ 'true'"> 
+                             <MvASSIGN NAME="l.custom_fields:identifier_value"           VALUE="{ Code_To_ID( l.custom_fields:identifier_value, l.custom_fields:type_value)  }">
+                        </MvIF>
+
 
 
      <MvCOMMENT>Create Template Entities from parsed variables</MvCOMMENT>
@@ -2565,10 +2604,23 @@ function CFM_CustomerField_Edit( field )
 
 
 
-<MvFUNCTION NAME = "Custom_Field_Write" PARAMETERS = "custom_fields var" STANDARDOUTPUTLEVEL = "">
-   
+<MvFUNCTION NAME = "Custom_Field_Update" PARAMETERS = "custom_fields var" STANDARDOUTPUTLEVEL = "">
+  
+     
      <MvIF EXPR="{  'product' CIN l.custom_fields:type_value  }">
-    
+
+      <MvASSIGN NAME="l.field_type" VALUE="product">
+
+            <MvQUERY NAME	= "Merchant"
+			 QUERY	= "{ 'UPDATE ' $ g.Store_Table_Prefix $ 'customfields_values 
+                                    SET value= ? WHERE field_id = ? AND product_id = ?
+					        	 ' }"
+
+			 FIELDS	= " l.custom_fields:insert_value, l.custom_fields:field_code_value,  l.custom_fields:identifier_value ">
+            <MvIF EXPR = "{ g.MvQUERY_Error }">
+                <MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-VSP-MER-00003', g.MvQUERY_Error ) }">
+            </MvIF>
+            
 
     <MvELSEIF EXPR="{  'category' CIN l.custom_fields:type_value }">
 
@@ -2589,4 +2641,213 @@ function CFM_CustomerField_Edit( field )
     
 	<MvFUNCTIONRETURN VALUE = "1">
 </MvFUNCTION>
+
+
+
+<MvFUNCTION NAME = "Entry_Exists" PARAMETERS = "custom_fields var" STANDARDOUTPUTLEVEL = "">
+  
+     
+     <MvIF EXPR="{  'product' CIN l.custom_fields:type_value  }">
+
+  
+            <MvOPENVIEW NAME	= "Merchant"
+                             VIEW	= "Entry_Exists"
+                             QUERY = "{ 'SELECT * FROM ' $ g.Store_Table_Prefix $ 'customfields_values
+                                          WHERE field_id = ? AND product_id = ?' }"
+                             FIELDS = " l.custom_fields:field_code_value,  l.custom_fields:identifier_value">
+
+                        <MvIF EXPR = "{ g.MvQUERY_Error }">
+                            <MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'VSP-ERROR-00055', g.MvQUERY_Error ) }">
+                        </MvIF>
+                
+                    <MvASSIGN NAME="l.existing_value" VALUE="{ Entry_Exists.d.value }">
+
+                 <MvCLOSEVIEW NAME = "Merchant" VIEW = "Entry_Exists">
+
+
+                <MvIF EXPR="{ ISNULL (l.existing_value) }">
+                            <MvFUNCTIONRETURN VALUE = "0">
+                 <MvELSE>
+                            <MvFUNCTIONRETURN VALUE = "1">
+                 </MvIF>
+               
+
+
+    <MvELSEIF EXPR="{  'category' CIN l.custom_fields:type_value }">
+
+
+    <MvELSEIF EXPR="{  'customer' CIN l.custom_fields:type_value }">
+
+
+    <MvELSEIF EXPR="{  'order' CIN l.custom_fields:type_value }">
+
+     
+     <MvELSE>
+
+            <MvCOMMENT>Didn't find correct parameter in type_value field. Return 0</MvCOMMENT>
+
+            <MvFUNCTIONRETURN VALUE = "0">
+
+   </MvIF>
+    
+	<MvFUNCTIONRETURN VALUE = "1">
+</MvFUNCTION>
+
+
+
+<MvFUNCTION NAME = "Custom_Field_Write" PARAMETERS = "custom_fields var" STANDARDOUTPUTLEVEL = "">
+  
+     
+     <MvIF EXPR="{  'product' CIN l.custom_fields:type_value  }">
+
+      <MvASSIGN NAME="l.field_type" VALUE="product">
+
+            <MvQUERY NAME	= "Merchant"
+			 QUERY	= "{ 'INSERT INTO ' $ g.Store_Table_Prefix $ 'customfields_values
+						  ( field_id, product_id, field_type, value )
+						  VALUES
+						  ( ?, ?, ? ,?)' }"
+			 FIELDS	= "l.custom_fields:field_code_value,l.custom_fields:identifier_value, l.field_type, l.custom_fields:insert_value ">
+            <MvIF EXPR = "{ g.MvQUERY_Error }">
+                <MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-VSP-MER-00003', g.MvQUERY_Error ) }">
+            </MvIF>
+            
+
+    <MvELSEIF EXPR="{  'category' CIN l.custom_fields:type_value }">
+
+
+    <MvELSEIF EXPR="{  'customer' CIN l.custom_fields:type_value }">
+
+
+    <MvELSEIF EXPR="{  'order' CIN l.custom_fields:type_value }">
+
+     
+     <MvELSE>
+
+            <MvCOMMENT>Didn't find correct parameter in type_value field. Return 0</MvCOMMENT>
+
+            <MvFUNCTIONRETURN VALUE = "0">
+
+   </MvIF>
+    
+	<MvFUNCTIONRETURN VALUE = "1">
+</MvFUNCTION>
+
+
+<MvFUNCTION NAME = "Code_To_ID" PARAMETERS = "code, field_type" STANDARDOUTPUTLEVEL = "">
+  
+
+             <MvIF EXPR="{  'product' CIN l.field_type  }">
+
+                       <MvOPENVIEW NAME	= "Merchant"
+                         VIEW	= "Prod"
+                         QUERY = "{ 'SELECT id FROM ' $ g.Store_Table_Prefix $ 'Products
+                                      WHERE code = ?' }"
+                         FIELDS = "l.code">
+
+                        <MvIF EXPR = "{ g.MvQUERY_Error }">
+                            <MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'VSP-ERROR-00055', g.MvQUERY_Error ) }">
+                        </MvIF>
+
+             <MvASSIGN NAME="l.product_id" VALUE="{ Prod.d.id }">
+                
+                <MvCLOSEVIEW NAME = "Merchant" VIEW = "Prod">
+
+                <MvFUNCTIONRETURN VALUE = "{ l.product_id }">
+
+
+    <MvELSEIF EXPR="{  'category' CIN l.field_type }">
+
+
+                       <MvOPENVIEW NAME	= "Merchant"
+                             VIEW	= "Cat"
+                             QUERY = "{ 'SELECT id FROM ' $ g.Store_Table_Prefix $ 'Categories
+                                          WHERE code = ?' }"
+                             FIELDS = "l.code">
+
+                        <MvIF EXPR = "{ g.MvQUERY_Error }">
+                            <MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'VSP-ERROR-00055', g.MvQUERY_Error ) }">
+                        </MvIF>
+
+                
+               
+
+                <MvCLOSEVIEW NAME = "Merchant" VIEW = "Cat">
+
+                 <MvFUNCTIONRETURN VALUE = "{ Cat.d.id }">
+
+
+    <MvELSE>
+
+            <MvCOMMENT>Didn't find correct parameter in type_value field. Return 0</MvCOMMENT>
+
+            <MvFUNCTIONRETURN VALUE = "0">
+
+   </MvIF>
+
+</MvFUNCTION>
+
+
+
+<MvFUNCTION NAME = "Field_ID_Lookup" PARAMETERS = "custom_fields  var, code" STANDARDOUTPUTLEVEL = "">
+
+            <MvIF EXPR="{  'product' CIN l.custom_fields:type_value  }">
+
+                       <MvOPENVIEW NAME	= "Merchant"
+                         VIEW	= "Product_Table"
+                         QUERY = "{ 'SELECT id FROM ' $ g.Store_Table_Prefix $ 'customfields_fields
+                                      WHERE code = ?' }"
+                         FIELDS = "l.code">
+
+                        <MvIF EXPR = "{ g.MvQUERY_Error }">
+                            <MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'VSP-ERROR-00055', g.MvQUERY_Error ) }">
+                        </MvIF>
+
+                 
+                 <MvASSIGN NAME="l.field_id" VALUE="{ Product_Table.d.id }">
+
+                 <MvEVAL EXPR="{ 'Field ID: ' $  l.field_id }">
+
+                 <MvCLOSEVIEW NAME = "Merchant" VIEW = "Product_Table">
+                 
+                 <MvFUNCTIONRETURN VALUE = "{ l.field_id }">
+
+
+    <MvELSEIF EXPR="{  'category' CIN l.custom_fields:type_value }">
+
+
+                       <MvOPENVIEW NAME	= "Merchant"
+                             VIEW	= "Cat"
+                             QUERY = "{ 'SELECT id FROM ' $ g.Store_Table_Prefix $ 'customfields_fields
+                                          WHERE code = ?' }"
+                             FIELDS = "l.code">
+
+                        <MvIF EXPR = "{ g.MvQUERY_Error }">
+                            <MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'VSP-ERROR-00055', g.MvQUERY_Error ) }">
+                        </MvIF>
+
+                 
+
+                <MvCLOSEVIEW NAME = "Merchant" VIEW = "Cat">
+
+                <MvFUNCTIONRETURN VALUE = "{ Cat.d.id }">
+
+
+    <MvELSE>
+
+            <MvCOMMENT>Didn't find correct parameter in type_value field. Return 0</MvCOMMENT>
+
+            <MvFUNCTIONRETURN VALUE = "0">
+
+   </MvIF>
+
+            
+            
+            <MvFUNCTIONRETURN VALUE = "1">
+
+  
+
+</MvFUNCTION>
+
+
 
